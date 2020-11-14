@@ -25,20 +25,45 @@ function paintToCanvas(){
     canvas.width =width;
     canvas.height= height;
 
-    setInterval(()=> {
-        ctx.drawImage(video,0,0,width,height)
+    return setInterval(()=> {
+        ctx.drawImage(video,0,0,width,height);
+        //take pixels out
+        let  pixels=ctx.getImageData(0,0,width,height);
+        //change pixels
+        // pixels= redEffect(pixels);
+        pixels=RgbSplit(pixels);
+        //put back pixels
+        ctx.putImageData(pixels,0,0);
+       
     }, 16);
 }
 function takePhoto(){
     snap.currentTime=0;
     snap.play();
-    const data= canvas[0].toDataURl('image/jpeg');
+    const data= canvas.toDataURL('image/jpeg');
     const link = document.createElement('a');
     link.href= data;
     link.setAttribute('download','Morning');
     link.innerHTML= `<img src ="${data}" alt = "Early Morning"/>`
     strip.insertBefore(link,strip.firstChild);
 
+}
+
+function redEffect(pixels){
+    for(let i=0; i< pixels.data.length; i+=4){
+      pixels.data[i+0] = pixels.data[i+0] +100; // red
+      pixels.data[i+1] = pixels.data[i+1] -50; // green
+      pixels.data[i+2] = pixels.data[i+2] * 0.5; //blue
+    }
+    return pixels;
+}
+function RgbSplit(pixels){
+    for(let i=0; i< pixels.data.length; i+=4){
+        pixels.data[i- 100] = pixels.data[i+0] ; // red
+        pixels.data[i+ 50] = pixels.data[i+1] ; // green
+        pixels.data[i+ 500] = pixels.data[i+2] ; //blue
+      }
+      return pixels;
 }
 getVideo();
 video.addEventListener('canplay', paintToCanvas);
